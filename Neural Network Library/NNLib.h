@@ -9,7 +9,7 @@ long double ldRand(long double min, long double max);	//Returns a number int the
 	how many nodes it is connected to ("outLen"), the value of which is was received from other nodes ("inputValue"), and its own "value" (range [-1, 1])*/
 class node {
 	friend class layer;
-	friend class neuralNetwork;
+	friend class oldNeuralNetwork;
 private:
 	long double inputValue;
 	long double value;
@@ -42,7 +42,7 @@ public:
 
 
 class layer {
-	friend class neuralNetwork;
+	friend class oldNeuralNetwork;
 private:
 	node** nodes;
 	int nodesLen;
@@ -70,7 +70,7 @@ public:
 
 
 
-class neuralNetwork {
+class oldNeuralNetwork {
 private:
 	layer** layers/* = new layer**/;
 	int layersLen;
@@ -79,16 +79,16 @@ private:
 public:
 	/*-The "Len" variables determine how many nodes will be in that type of layer (all the hidden layers have the same amount of nodes)
 	-The Default Maximum Mutation Ratio can be changed in the header file*/
-	neuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double limitMaxMutationRate = 0.05);
+	oldNeuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double limitMaxMutationRate = 0.05);
 	//Creates a copy of the input network
-	neuralNetwork(neuralNetwork& net);
-	~neuralNetwork();
+	oldNeuralNetwork(oldNeuralNetwork& net);
+	~oldNeuralNetwork();
 	//Will return a pointer to layer "l" on the network (from {input -> hidden -> output} order)
 	layer* operator[](int l);
-	void operator=(neuralNetwork& net);
+	void operator=(oldNeuralNetwork& net);
 	void invalidate();
 	//Returns a pointer to a new network, which is a mutation of the two networks involved
-	neuralNetwork* operator+(neuralNetwork &net);
+	oldNeuralNetwork* operator+(oldNeuralNetwork &net);
 	//Inputs the "inputs" into the nodes in the input layer
 	void input(long double* inputs);
 	void output(long double * outputs);
@@ -96,10 +96,10 @@ public:
 	void process();
 	/*Turns "net" into a mutated version of "this" network
 	-This is, usually, the faster version of the function*/
-	void getMutation(neuralNetwork& net);
+	void getMutation(oldNeuralNetwork& net);
 	/*Returns a mutated version of "this" network
 	-This is, usually, the slower version of the function*/
-	neuralNetwork getMutation();
+	oldNeuralNetwork getMutation();
 	//Will return a pointer to layer "l" on the network (from {input -> hidden -> output} order)
 	layer* getLayer(int l);
 	//Will show all Values and Weights
@@ -108,7 +108,12 @@ public:
 };
 
 
-
+class neuralNetwork {
+	long double** value;
+	long double** weight;
+	int netLen;
+	int* layerLen;
+};
 
 
 

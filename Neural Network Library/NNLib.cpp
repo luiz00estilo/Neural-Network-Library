@@ -135,7 +135,7 @@ node* layer::getNode(int n) {
 
 
 
-neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double newMutationRate) {
+oldNeuralNetwork::oldNeuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double newMutationRate) {
 	if (inputLen < 1) inputLen = 1;							//}
 	if (hiddenLen < 1) hiddenLen = 1;						//}
 	if (outputLen < 1) outputLen = 1;						//} Checkings
@@ -148,7 +148,7 @@ neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int num
 	for (int x = 1; x < layersLen; x++) layers[x - 1]->connect(layers[x][0]);	//Connects all layers
 	mutationRate = newMutationRate;	//Sets the mutationRate
 }
-neuralNetwork::neuralNetwork(neuralNetwork& net) {
+oldNeuralNetwork::oldNeuralNetwork(oldNeuralNetwork& net) {
 	layers = new layer*[net.layersLen];	//Generatins new layer pointers
 	layers[0] = new layer(net.layers[0]->nodesLen);														//|Generating input layers
 	for (int x = 0; x < (net.layersLen - 2); x++) layers[1 + x] = new layer(net.layers[1]->nodesLen);	//|           hidden
@@ -158,15 +158,15 @@ neuralNetwork::neuralNetwork(neuralNetwork& net) {
 	this->layersLen = net.layersLen;												//}Copies the stats from "net" to "this"
 	this->mutationRate = net.mutationRate;											//}
 }
-neuralNetwork::~neuralNetwork() {
+oldNeuralNetwork::~oldNeuralNetwork() {
 	for (int x = 0; x < layersLen; x++) delete layers[x];
 	delete[] layers;
 }
-layer* neuralNetwork::operator[](int l) {
+layer* oldNeuralNetwork::operator[](int l) {
 	if (l >= 0 && l < layersLen) return layers[l];
 	else return NULL;
 }
-void neuralNetwork::operator=(neuralNetwork& net) {
+void oldNeuralNetwork::operator=(oldNeuralNetwork& net) {
 	if (this->layersLen != net.layersLen ||															//testing if the number of layers is equal
 		this->layers[0]->nodesLen != net.layers[0]->nodesLen ||											//|testing if the number of nodes in the input layer are equal
 		this->layers[1]->nodesLen != net.layers[1]->nodesLen ||											//|                                      hidden
@@ -187,14 +187,14 @@ void neuralNetwork::operator=(neuralNetwork& net) {
 	this->layersLen = net.layersLen;												//}Copies the stats from "net" to "this"
 	this->mutationRate = net.mutationRate;											//}
 }
-neuralNetwork* neuralNetwork::operator+(neuralNetwork &net) {
+oldNeuralNetwork* oldNeuralNetwork::operator+(oldNeuralNetwork &net) {
 	if (this->mutationRate == 0 || net.mutationRate == 0 ||															//testing if either of the nets are infertile
 		this->layersLen != net.layersLen ||																			//testing if the number of layers is equal
 		this->layers[0]->nodesLen != net.layers[0]->nodesLen ||														//|testing if the number of nodes in the input layer are equal
 		this->layers[1]->nodesLen != net.layers[1]->nodesLen ||														//|                                      hidden
 		this->layers[(this->layersLen - 1)]->nodesLen != net.layers[(net.layersLen - 1)]->nodesLen) return nullptr;	//|                                      output
 
-	neuralNetwork* resultNet = new neuralNetwork(this->layers[0]->nodesLen, this->layers[1]->nodesLen, this->layers[(this->layersLen - 1)]->nodesLen, (this->layersLen - 2));	//Creates a new network with the same size as "this" network
+	oldNeuralNetwork* resultNet = new oldNeuralNetwork(this->layers[0]->nodesLen, this->layers[1]->nodesLen, this->layers[(this->layersLen - 1)]->nodesLen, (this->layersLen - 2));	//Creates a new network with the same size as "this" network
 
 	for (int x = 0; x < (this->layersLen - 1); x++) {						//Loops the weight making thought all layers (exept the last)
 		for (int y = 0; y < this->layers[x]->nodesLen; y++) {				//Loops thought all the nodes of the layer
@@ -209,23 +209,23 @@ neuralNetwork* neuralNetwork::operator+(neuralNetwork &net) {
 	resultNet->mutationRate = (this->mutationRate + net.mutationRate) / 2;
 	return resultNet;
 }
-void neuralNetwork::invalidate() {
+void oldNeuralNetwork::invalidate() {
 	for (int x = 0; x < this->layersLen; x++) this->layers[x]->invalidate();
 	this->mutationRate = 0;
 }
-void neuralNetwork::input(long double* inputs) {
+void oldNeuralNetwork::input(long double* inputs) {
 	for (int x = 0; x < layers[0]->getLen(); x++) layers[0]->getNode(x)->value = inputs[x];
 }
-void neuralNetwork::output(long double* outputs) {
+void oldNeuralNetwork::output(long double* outputs) {
 	for (int x = 0; x < layers[layersLen - 1]->nodesLen; x++) outputs[x] = layers[layersLen - 1]->nodes[x]->value;
 }
-void neuralNetwork::process() {
+void oldNeuralNetwork::process() {
 	for (int x = 0; x < (layersLen - 1); x++) {
 		layers[x]->transmit();
 		layers[x + 1]->processInputs();
 	}
 }
-void neuralNetwork::getMutation(neuralNetwork& net) {
+void oldNeuralNetwork::getMutation(oldNeuralNetwork& net) {
 	//neuralNetwork resultNet(this->layers[0]->nodesLen, this->layers[1]->nodesLen, this->layers[(this->layersLen - 1)]->nodesLen, (this->layersLen - 2), this->mutationRate);	//Creates a new network with the same size as "this" network
 	net = this[0];
 	std::uniform_real_distribution<long double> rnd(-this->mutationRate, this->mutationRate);				//}Creating the random system
@@ -240,8 +240,8 @@ void neuralNetwork::getMutation(neuralNetwork& net) {
 		}
 	}
 }
-neuralNetwork neuralNetwork::getMutation() {
-	neuralNetwork resultNet(this->layers[0]->nodesLen, this->layers[1]->nodesLen, this->layers[(this->layersLen - 1)]->nodesLen, (this->layersLen - 2), this->mutationRate);	//Creates a new network with the same size as "this" network
+oldNeuralNetwork oldNeuralNetwork::getMutation() {
+	oldNeuralNetwork resultNet(this->layers[0]->nodesLen, this->layers[1]->nodesLen, this->layers[(this->layersLen - 1)]->nodesLen, (this->layersLen - 2), this->mutationRate);	//Creates a new network with the same size as "this" network
 	for (int x = 0; x < (this->layersLen - 1); x++) {						//Loops the weight making thought all layers (exept the last)
 		for (int y = 0; y < this->layers[x]->nodesLen; y++) {				//Loops thought all the nodes of the layer
 			for (int z = 0; z < this->layers[x]->nodes[y]->outLen; z++) {	//Loops thought all the weights of the node
@@ -253,7 +253,7 @@ neuralNetwork neuralNetwork::getMutation() {
 	}
 	return resultNet;
 }
-layer* neuralNetwork::getLayer(int l) {
+layer* oldNeuralNetwork::getLayer(int l) {
 	if (l >= 0 && l < layersLen) return layers[l];
 	else return nullptr;
 }
@@ -280,7 +280,7 @@ layer* neuralNetwork::getLayer(int l) {
 //	}
 //	return tempNet;
 //}
-void neuralNetwork::show() {
+void oldNeuralNetwork::show() {
 	if (this == nullptr) {		//Catching a null pointer
 		std::cout << "Exeption: NN Null Pointer" << std::endl;
 		return;
