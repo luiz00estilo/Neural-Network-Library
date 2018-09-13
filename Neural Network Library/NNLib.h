@@ -107,12 +107,21 @@ public:
 
 };
 
-
+//
 class neuralNetwork {
+private:
+	/*holds the values for all the nodes in the network
+	defined as "value[layer][node]"*/
 	long double** value;
-	long double** weight;
-	int netLen;
-	int* layerLen;
+	/*holds all the weights in the network
+	defined as "weight[output layer][output node][input node]"*/
+	long double*** weight;
+	int netLen;	/*holds the amount of layers in the network*/
+	int* layerLen; /*holds the amount of nodes in each layer*/
+public:
+	neuralNetwork(int inputLen, int hiddenLen, int outputLen, int layerCount);
+	neuralNetwork(int* layersLen, int layerCount);
+	~neuralNetwork();
 };
 
 

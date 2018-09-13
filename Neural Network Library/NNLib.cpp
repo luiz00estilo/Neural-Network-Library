@@ -11,7 +11,6 @@ long double ldRand(long double min, long double max) {
 	return rnd(eng);
 }
 
-
 node::node() {
 	inputValue = 0;
 	value = 0;
@@ -80,9 +79,6 @@ long double node::getWeight(int n) {
 	return -40004;
 }
 
-
-
-
 layer::layer(int len) {
 	if (len < 1) len = 1;
 	nodes = new node*[len];
@@ -132,9 +128,6 @@ node* layer::getNode(int n) {
 	else return NULL;
 }
 
-
-
-
 oldNeuralNetwork::oldNeuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double newMutationRate) {
 	if (inputLen < 1) inputLen = 1;							//}
 	if (hiddenLen < 1) hiddenLen = 1;						//}
@@ -144,7 +137,7 @@ oldNeuralNetwork::oldNeuralNetwork(int inputLen, int hiddenLen, int outputLen, i
 	layers[0] = new layer(inputLen);														//Generating input layer
 	for (int x = 0; x < numberOfHiddenLayers; x++) layers[1 + x] = new layer(hiddenLen);	//Generating hidden layers
 	layers[1 + numberOfHiddenLayers] = new layer(outputLen);								//Generating output layer
-	layersLen = 2 + numberOfHiddenLayers;	//Sets the network lenght
+	layersLen = 2 + numberOfHiddenLayers;	//Sets the network length
 	for (int x = 1; x < layersLen; x++) layers[x - 1]->connect(layers[x][0]);	//Connects all layers
 	mutationRate = newMutationRate;	//Sets the mutationRate
 }
@@ -296,5 +289,39 @@ void oldNeuralNetwork::show() {
 	}
 }
 
+neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int layerCount)	//NOT HANDLING EXPECTINS WELL //UNTESTED //TRY TO ADJUST WEIGHTS IN BETWEEN VARIABLE CREATION
+{
+	try {
+		if (layerCount < 2 || inputLen < 1 || outputLen < 1) throw "invArg";	//}Validating the lengths
+		if (layerCount > 2 && hiddenLen < 1) throw "invArg";					//}
+	}
+	catch(char* expt){
+		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
+	}
+	netLen = layerCount; //Sets the number of layers
+	layerLen = new int[layerCount];				//Creates the list of layer lengths
+	value = new long double*[layerCount];		//Creates the value layers
+	weight = new long double**[layerCount - 1];	//Creates the weight layers
+	layerLen[0] = inputLen;							//Sets the length of the input layer
+	value[0] = new long double[inputLen];			//Creates the input layer values
+	weight[0] = new long double*[inputLen];			//Creates the input weight nodes
+	for (int x = 1; x < (layerCount - 1); x++) {
+		layerLen[x] = hiddenLen;				//Sets the length of the hidden layers
+		value[x] = new long double[hiddenLen];	//Creates the hidden layers values
+		weight[x] = new long double*[hiddenLen];//Creates the hidden weight nodes
+	}
+	layerLen[layerCount - 1] = outputLen;				//Sets the length of the output layer
+	value[layerCount - 1] = new long double[outputLen];	//Creates the output layer values
+	for (int x = 0; x < (netLen - 1); x++) {
+		for (int y = 0; y < layerLen[x]; y++) {
+			weight[x][y] = new long double[layerLen[x + 1]];
+		}
+	}
 
-
+}
+neuralNetwork::neuralNetwork(int * layersLen, int layerCount)
+{
+}
+neuralNetwork::~neuralNetwork()
+{
+}
