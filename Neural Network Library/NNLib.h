@@ -122,6 +122,7 @@ public:
 	neuralNetwork(int inputLen, int hiddenLen, int outputLen, int layerCount);
 	neuralNetwork(int* layersLen, int layerCount);
 	~neuralNetwork();
+	void show();
 };
 
 

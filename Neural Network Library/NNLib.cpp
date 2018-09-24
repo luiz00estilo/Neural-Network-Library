@@ -325,3 +325,14 @@ neuralNetwork::neuralNetwork(int * layersLen, int layerCount)
 neuralNetwork::~neuralNetwork()
 {
 }
+void neuralNetwork::show() {	//NOT FINISHED
+	for (int x = 0; x < netLen; x++) {
+		for (int y = 0; y < layerLen[x]; y++) std::cout << value[x][y] << ' ';
+		std::cout << std::endl;
+		for (int y = 0; y < layerLen[x]; y++) {
+			for (int z = 0; z < layerLen[x + 1]; z++) std::cout << weight[x][y][z] << ' ';
+			std::cout << ' ';
+		}
+		std::cout << std::endl << std::endl;
+	}
+}
