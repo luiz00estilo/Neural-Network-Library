@@ -110,9 +110,11 @@ public:
 
 class neuralNetwork {
 	long double** value;
-	long double** weight;
+	long double*** weight;
 	int netLen;
 	int* layerLen;
+public:
+	void show();
 };
 
 
