@@ -289,32 +289,32 @@ void oldNeuralNetwork::show() {
 	}
 }
 
-neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int layerCount)	//NOT HANDLING EXPECTINS WELL //UNTESTED //TRY TO ADJUST WEIGHTS IN BETWEEN VARIABLE CREATION
+neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int layerCount)	//NOT HANDLING EXPECTINS WELL //UNTESTED
 {
 	try {
-		if (layerCount < 2 || inputLen < 1 || outputLen < 1) throw "invArg";	//}Validating the lengths
+		if (layerCount < 2 || inputLen < 1 || outputLen < 1) throw "invArg";	//}Validating the variables
 		if (layerCount > 2 && hiddenLen < 1) throw "invArg";					//}
 	}
-	catch(char* expt){
+	catch (const char* expt) {
 		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
 	}
-	netLen = layerCount; //Sets the number of layers
+	netLen = layerCount;	//Sets the number of layers
 	layerLen = new int[layerCount];				//Creates the list of layer lengths
-	value = new long double*[layerCount];		//Creates the value layers
-	weight = new long double**[layerCount - 1];	//Creates the weight layers
-	layerLen[0] = inputLen;							//Sets the length of the input layer
+	layerLen[0] = inputLen;						//Sets the length of the input layer
 	value[0] = new long double[inputLen];			//Creates the input layer values
-	weight[0] = new long double*[inputLen];			//Creates the input weight nodes
+	value = new long double*[layerCount];			//Creates the value layers
+	weight = new long double**[layerCount - 1];	//Creates the weight layers
+	weight[0] = new long double*[inputLen];		//Creates the input weight nodes
 	for (int x = 1; x < (layerCount - 1); x++) {
-		layerLen[x] = hiddenLen;				//Sets the length of the hidden layers
-		value[x] = new long double[hiddenLen];	//Creates the hidden layers values
-		weight[x] = new long double*[hiddenLen];//Creates the hidden weight nodes
+		layerLen[x] = hiddenLen;					//Sets the length of the hidden layers
+		value[x] = new long double[hiddenLen];		//Creates the hidden layers values
+		weight[x] = new long double*[hiddenLen];	//Creates the hidden weight nodes
 	}
 	layerLen[layerCount - 1] = outputLen;				//Sets the length of the output layer
 	value[layerCount - 1] = new long double[outputLen];	//Creates the output layer values
-	for (int x = 0; x < (netLen - 1); x++) {
-		for (int y = 0; y < layerLen[x]; y++) {
-			weight[x][y] = new long double[layerLen[x + 1]];
+	for (int x = 0; x < (netLen - 1); x++) {					//}
+		for (int y = 0; y < layerLen[x]; y++) {					//}Creates weights
+			weight[x][y] = new long double[layerLen[x + 1]];	//}
 		}
 	}
 
