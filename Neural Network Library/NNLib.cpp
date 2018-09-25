@@ -301,8 +301,8 @@ neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int lay
 	netLen = layerCount;	//Sets the number of layers
 	layerLen = new int[layerCount];				//Creates the list of layer lengths
 	layerLen[0] = inputLen;						//Sets the length of the input layer
-	value[0] = new long double[inputLen];			//Creates the input layer values
 	value = new long double*[layerCount];			//Creates the value layers
+	value[0] = new long double[inputLen];			//Creates the input layer values
 	weight = new long double**[layerCount - 1];	//Creates the weight layers
 	weight[0] = new long double*[inputLen];		//Creates the input weight nodes
 	for (int x = 1; x < (layerCount - 1); x++) {
@@ -312,9 +312,12 @@ neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int lay
 	}
 	layerLen[layerCount - 1] = outputLen;				//Sets the length of the output layer
 	value[layerCount - 1] = new long double[outputLen];	//Creates the output layer values
-	for (int x = 0; x < (netLen - 1); x++) {					//}
-		for (int y = 0; y < layerLen[x]; y++) {					//}Creates weights
-			weight[x][y] = new long double[layerLen[x + 1]];	//}
+	std::uniform_real_distribution<long double> rnd(-1, 1);													//}Creates the randomizer
+	std::default_random_engine eng(std::chrono::high_resolution_clock::now().time_since_epoch().count());	//}Generating a number between (min, max)
+	for (int x = 0; x < (netLen - 1); x++) {
+		for (int y = 0; y < layerLen[x]; y++) {
+			weight[x][y] = new long double[layerLen[x + 1]];						//Creates the weights
+			for (int z = 0; z < layerLen[x + 1]; z++) weight[x][y][z] = rnd(eng);	//Randomizes the weights' values
 		}
 	}
 
@@ -325,14 +328,16 @@ neuralNetwork::neuralNetwork(int * layersLen, int layerCount)
 neuralNetwork::~neuralNetwork()
 {
 }
-void neuralNetwork::show() {	//NOT FINISHED
+void neuralNetwork::show() {	
 	for (int x = 0; x < netLen; x++) {
-		for (int y = 0; y < layerLen[x]; y++) std::cout << value[x][y] << ' ';
-		std::cout << std::endl;
-		for (int y = 0; y < layerLen[x]; y++) {
-			for (int z = 0; z < layerLen[x + 1]; z++) std::cout << weight[x][y][z] << ' ';
-			std::cout << ' ';
+		std::cout << "Values L" << x << " (" << layerLen[x] << "): ";
+		for (int y = 0; y < layerLen[x]; y++) std::cout << value[x][y] << ' ';	//Displays all the values of "x" layer
+		std::cout << '\n';
+		std::cout << "Weights L" << x << " (" << (layerLen[x] * layerLen[x + 1]) << "): ";
+		for (int y = 0; y < layerLen[x]; y++) {	//Displays the weights of "x" layer
+			std::cout << "/Node " << y << " (" << layerLen[x + 1] << "):";
+			for (int z = 0; z < layerLen[x + 1]; z++) std::cout << weight[x][y][z] << ' ';	//Displays all the weights of "y" node
 		}
-		std::cout << std::endl << std::endl;
+		std::cout << "\n\n";
 	}
 }
