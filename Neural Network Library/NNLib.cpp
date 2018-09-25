@@ -289,11 +289,10 @@ void oldNeuralNetwork::show() {
 	}
 }
 
-neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int layerCount)	//NOT HANDLING EXPECTINS WELL //UNTESTED
+neuralNetwork::neuralNetwork(const int inputLen, const int hiddenLen, const int outputLen, const int layerCount)	//NOT HANDLING EXPECTINS WELL //UNTESTED
 {
 	try {
-		if (layerCount < 2 || inputLen < 1 || outputLen < 1) throw "invArg";	//}Validating the variables
-		if (layerCount > 2 && hiddenLen < 1) throw "invArg";					//}
+		if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw "invArg";	//}Validating the arguments
 	}
 	catch (const char* expt) {
 		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
@@ -320,13 +319,49 @@ neuralNetwork::neuralNetwork(int inputLen, int hiddenLen, int outputLen, int lay
 			for (int z = 0; z < layerLen[x + 1]; z++) weight[x][y][z] = rnd(eng);	//Randomizes the weights' values
 		}
 	}
-
 }
-neuralNetwork::neuralNetwork(int * layersLen, int layerCount)
+neuralNetwork::neuralNetwork(const int* layersLen, const int layerCount)
 {
+	try {
+		if (layerCount < 2 || layersLen[0] < 1 || layersLen[layerCount - 1] < 1) throw "invArg";				//}Validating the arguments
+		if (layerCount > 2) for (int x = 1; x < (layerCount - 1); x++) if (layersLen[x] < 1) throw "invArg";	//}
+	}
+	catch (const char* expt) {
+		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
+	}
+	netLen = layerCount;	//Sets the number of layers
+	layerLen = new int[layerCount];				//Creates the list of layer lengths
+	//layerLen[0] = inputLen;						//Sets the length of the input layer
+	value = new long double*[layerCount];		//Creates the value layers
+	//value[0] = new long double[inputLen];			//Creates the input layer values
+	weight = new long double**[layerCount - 1];	//Creates the weight layers
+	//weight[0] = new long double*[inputLen];		//Creates the input weight nodes
+	for (int x = 0; x < layerCount; x++) {
+		layerLen[x] = layersLen[x];					//Sets the length of the hidden layers
+		value[x] = new long double[layersLen[x]];	//Creates the hidden layers values
+		weight[x] = new long double*[layersLen[x]];	//Creates the hidden weight nodes
+	}
+	//layerLen[layerCount - 1] = outputLen;				//Sets the length of the output layer
+	//value[layerCount - 1] = new long double[outputLen];	//Creates the output layer values
+	std::uniform_real_distribution<long double> rnd(-1, 1);													//}Creates the randomizer
+	std::default_random_engine eng(std::chrono::high_resolution_clock::now().time_since_epoch().count());	//}Generating a number between (min, max)
+	for (int x = 0; x < (netLen - 1); x++) {
+		for (int y = 0; y < layerLen[x]; y++) {
+			weight[x][y] = new long double[layerLen[x + 1]];						//Creates the weights
+			for (int z = 0; z < layerLen[x + 1]; z++) weight[x][y][z] = rnd(eng);	//Randomizes the weights' values
+		}
+	}
 }
 neuralNetwork::~neuralNetwork()
 {
+	delete[] layerLen;	//Frees up layerLen
+	for (int x = 0; x < netLen; x++) delete[] value[x];	//}Frees up value
+	delete[] value;										//}
+	for (int x = 0; x < (netLen - 1); x++) {
+		for (int y = 0; y < layerLen[x]; y++) delete[] weight[x][y];
+		delete[] weight[x];
+	}
+	delete[] weight;
 }
 void neuralNetwork::show() {	
 	for (int x = 0; x < netLen; x++) {
