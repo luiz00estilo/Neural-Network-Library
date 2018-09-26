@@ -298,22 +298,17 @@ neuralNetwork::neuralNetwork(const int inputLen, const int hiddenLen, const int 
 		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
 	}
 	netLen = layerCount;	//Sets the number of layers
-	layerLen = new int[layerCount];				//Creates the list of layer lengths
-	layerLen[0] = inputLen;						//Sets the length of the input layer
-	value = new long double*[layerCount];			//Creates the value layers
-	value[0] = new long double[inputLen];			//Creates the input layer values
-	weight = new long double**[layerCount - 1];	//Creates the weight layers
-	weight[0] = new long double*[inputLen];		//Creates the input weight nodes
-	for (int x = 1; x < (layerCount - 1); x++) {
-		layerLen[x] = hiddenLen;					//Sets the length of the hidden layers
-		value[x] = new long double[hiddenLen];		//Creates the hidden layers values
-		weight[x] = new long double*[hiddenLen];	//Creates the hidden weight nodes
-	}
-	layerLen[layerCount - 1] = outputLen;				//Sets the length of the output layer
-	value[layerCount - 1] = new long double[outputLen];	//Creates the output layer values
-	std::uniform_real_distribution<long double> rnd(-1, 1);													//}Creates the randomizer
-	std::default_random_engine eng(std::chrono::high_resolution_clock::now().time_since_epoch().count());	//}Generating a number between (min, max)
+	layerLen = new int[netLen];										//Creates the list of layer lengths
+	layerLen[0] = inputLen;											//Sets the length of the input layer
+	for (int x = 1; x < (netLen - 1); x++) layerLen[x] = hiddenLen;	//Sets the length of the hidden layers
+	layerLen[netLen - 1] = outputLen;								//Sets the length of the output layer
+	value = new long double*[netLen];											//Creates the value layers
+	for (int x = 0; x < netLen; x++) value[x] = new long double[layerLen[x]];	//Creates the values for each layer
+	std::uniform_real_distribution<long double> rnd(-1, 1);													//}Creates the randomizer,
+	std::default_random_engine eng(std::chrono::high_resolution_clock::now().time_since_epoch().count());	//}generating a number between (min, max)
+	weight = new long double**[netLen - 1];	//Creates the weight layers
 	for (int x = 0; x < (netLen - 1); x++) {
+		weight[x] = new long double*[layerLen[x]];	//Creates the hidden weight nodes
 		for (int y = 0; y < layerLen[x]; y++) {
 			weight[x][y] = new long double[layerLen[x + 1]];						//Creates the weights
 			for (int z = 0; z < layerLen[x + 1]; z++) weight[x][y][z] = rnd(eng);	//Randomizes the weights' values
