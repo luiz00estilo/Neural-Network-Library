@@ -107,6 +107,16 @@ public:
 
 };
 
+
+class invalidArgument : public std::exception {
+private:
+	char* message;
+public:
+	invalidArgument(const char* &error);
+	~invalidArgument();
+	const char* what();
+};
+
 //
 class neuralNetwork {
 private:
@@ -123,6 +133,7 @@ public:
 	neuralNetwork(const int* layersLen, const int layerCount);
 	~neuralNetwork();
 	void show();
+	void exptHandler()
 };
 
 
