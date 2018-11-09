@@ -2,6 +2,7 @@
 #include <cmath>
 #include <chrono>
 #include <random>
+#include <string>
 #include <iostream>
 
 
@@ -289,50 +290,13 @@ void oldNeuralNetwork::show() {
 	}
 }
 
-nnExpt::nnExpt() {
-	message = new char[1];
-}
-nnExpt::nnExpt(const char* error) {
-	int l = 0;
-	do { l++; } while (error[l] != NULL);
-	message = new char[l];
-	for (int x = 0; x < l; x++) {
-		message[l] = error[l];
-	}
-}
-nnExpt::~nnExpt()
-{
-	delete[] message;
-}
-const char * nnExpt::what() {
-	return message;
-}
-
-invArgExpt::invArgExpt()
-{
-	const char error[] = "Invalid Argument";
-	int l = 0;
-	do { l++; } while (error[l] != NULL);
-	message = new char[l];
-	for (int x = 0; x < l; x++) {
-		message[l] = error[l];
-	}
-}
-const char* invArgExpt::what() {
+const char* invArgExpt::what() const {
 	return "Invalid Argument";
 }
 
-
-neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)	//NOT HANDLING EXPECTINS WELL //UNTESTED
+neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)	//NO RENDOMIZATION
 {
-	try {
-		if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw invArgExpt("derp");	//}Validating the arguments
-		invArgExpt e;
-		std::cout << e.what() << std::endl;
-	}
-	catch (const nnExpt& expt) {
-		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
-	}
+	if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw invArgExpt();	//}Validating the arguments
 	netLen = layerCount;	//Sets the number of layers
 	layerLen = new int[netLen];										//Creates the list of layer lengths
 	layerLen[0] = inputLen;											//Sets the length of the input layer
@@ -353,14 +317,8 @@ neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int
 }
 neuralNetwork::neuralNetwork(const int layerCount, const int* layersLen)
 {
-	try {
-		if (layerCount < 2 || layersLen[0] < 1 || layersLen[layerCount - 1] < 1) throw "invArg";				//}Validating the arguments
-		if (layerCount > 2) for (int x = 1; x < (layerCount - 1); x++) if (layersLen[x] < 1) throw "invArg";	//}
-	}
-	catch (const char& expt) {
-		std::cout << "Exeption found on constructor:" << expt << std::endl << "Program might not act as expected" << std::endl;
-	
-	}
+	if (layerCount < 2 || layersLen[0] < 1 || layersLen[layerCount - 1] < 1) throw invArgExpt();				//}Validating the arguments
+	if (layerCount > 2) for (int x = 1; x < (layerCount - 1); x++) if (layersLen[x] < 1) throw invArgExpt();	//}
 	netLen = layerCount;	//Sets the number of layers
 	layerLen = new int[layerCount];				//Creates the list of layer lengths
 	//layerLen[0] = inputLen;						//Sets the length of the input layer

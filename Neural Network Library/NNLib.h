@@ -1,7 +1,7 @@
 #pragma once
 #ifndef NNLIB_H_
 #define NNLIB_H_
-
+#include <exception>
 
 long double ldRand(long double min, long double max);	//Returns a number int the range [min, max]
 
@@ -104,19 +104,9 @@ public:
 
 };
 
-class nnExpt : public std::exception {
-protected:
-	 char* message;
+class invArgExpt : public std::exception {
 public:
-	nnExpt();
-	 nnExpt(const char* error);
-	~nnExpt();
-	virtual const char* what();
-};
-class invArgExpt : public nnExpt {
-public:
-	invArgExpt();
-	const char* what();
+	const char* what() const;
 };
 
 class neuralNetwork {
@@ -130,8 +120,8 @@ private:
 	defined as "weight[output layer][output node][input node]"*/
 	long double*** weight;
 public:
-	/*constructs a neural network with "layerCount" layers
-	"...Len" variables determine how many nodes there are in each layer*/
+	/*constructs a neural network with "layerCount" layers (2 minimum)
+	"...Len" variables determine how many nodes there are in each layer (1 minimum)*/
 	neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen);
 	/*constructs a neural network with "layerCount" layers
 	"...Len" variables will determine how many nodes there are in each layer*/
