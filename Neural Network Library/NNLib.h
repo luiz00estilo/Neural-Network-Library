@@ -40,7 +40,6 @@ public:
 	long double getWeight(int n);
 };
 
-
 class layer {
 	friend class oldNeuralNetwork;
 private:
@@ -67,8 +66,6 @@ public:
 	node* getNode(int n);
 
 };
-
-
 
 class oldNeuralNetwork {
 private:
@@ -107,17 +104,21 @@ public:
 
 };
 
-
-class invalidArgument : public std::exception {
-private:
-	char* message;
+class nnExpt : public std::exception {
+protected:
+	 char* message;
 public:
-	invalidArgument(const char* &error);
-	~invalidArgument();
+	nnExpt();
+	 nnExpt(const char* error);
+	~nnExpt();
+	virtual const char* what();
+};
+class invArgExpt : public nnExpt {
+public:
+	invArgExpt();
 	const char* what();
 };
 
-//
 class neuralNetwork {
 private:
 	int netLen;	/*holds the amount of layers in the network*/
@@ -129,11 +130,14 @@ private:
 	defined as "weight[output layer][output node][input node]"*/
 	long double*** weight;
 public:
-	neuralNetwork(const int inputLen, const int hiddenLen, const int outputLen, const int layerCount);
-	neuralNetwork(const int* layersLen, const int layerCount);
+	/*constructs a neural network with "layerCount" layers
+	"...Len" variables determine how many nodes there are in each layer*/
+	neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen);
+	/*constructs a neural network with "layerCount" layers
+	"...Len" variables will determine how many nodes there are in each layer*/
+	neuralNetwork(const int layerCount, const int* layersLen);
 	~neuralNetwork();
 	void show();
-	void exptHandler()
 };
 
 

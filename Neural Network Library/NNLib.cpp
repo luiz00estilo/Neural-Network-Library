@@ -289,7 +289,10 @@ void oldNeuralNetwork::show() {
 	}
 }
 
-invalidArgument::invalidArgument(const char* &error) {
+nnExpt::nnExpt() {
+	message = new char[1];
+}
+nnExpt::nnExpt(const char* error) {
 	int l = 0;
 	do { l++; } while (error[l] != NULL);
 	message = new char[l];
@@ -297,21 +300,37 @@ invalidArgument::invalidArgument(const char* &error) {
 		message[l] = error[l];
 	}
 }
-invalidArgument::~invalidArgument()
+nnExpt::~nnExpt()
 {
 	delete[] message;
 }
-const char * invalidArgument::what() {
+const char * nnExpt::what() {
 	return message;
 }
 
+invArgExpt::invArgExpt()
+{
+	const char error[] = "Invalid Argument";
+	int l = 0;
+	do { l++; } while (error[l] != NULL);
+	message = new char[l];
+	for (int x = 0; x < l; x++) {
+		message[l] = error[l];
+	}
+}
+const char* invArgExpt::what() {
+	return "Invalid Argument";
+}
 
-neuralNetwork::neuralNetwork(const int inputLen, const int hiddenLen, const int outputLen, const int layerCount)	//NOT HANDLING EXPECTINS WELL //UNTESTED
+
+neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)	//NOT HANDLING EXPECTINS WELL //UNTESTED
 {
 	try {
-		if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw "invArg";	//}Validating the arguments
+		if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw invArgExpt("derp");	//}Validating the arguments
+		invArgExpt e;
+		std::cout << e.what() << std::endl;
 	}
-	catch (const char* expt) {
+	catch (const nnExpt& expt) {
 		std::cout << "Exeption found:" << expt << std::endl << "Program might not act as expected" << std::endl;
 	}
 	netLen = layerCount;	//Sets the number of layers
@@ -332,7 +351,7 @@ neuralNetwork::neuralNetwork(const int inputLen, const int hiddenLen, const int 
 		}
 	}
 }
-neuralNetwork::neuralNetwork(const int* layersLen, const int layerCount)
+neuralNetwork::neuralNetwork(const int layerCount, const int* layersLen)
 {
 	try {
 		if (layerCount < 2 || layersLen[0] < 1 || layersLen[layerCount - 1] < 1) throw "invArg";				//}Validating the arguments
