@@ -119,6 +119,9 @@ private:
 	/*holds all the weights in the network
 	defined as "weight[output layer][output node][input node]"*/
 	long double*** weight;
+	/*holds all the biases in the network
+	defined as "bias[layer]"*/
+	long double* bias;
 public:
 	/*constructs a neural network with "layerCount" layers (2 minimum)
 	"...Len" variables determine how many nodes there are in each layer (1 minimum)*/
