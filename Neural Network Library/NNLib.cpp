@@ -354,6 +354,33 @@ neuralNetwork::~neuralNetwork()
 	delete[] bias;	//Frees up "bias"
 	delete[] layerLen;	//Frees up "layerLen"
 }
+void neuralNetwork::input(const long double* inputs)
+{
+	for (int x = 0; x < layerLen[0]; x++) {	//}
+		value[0][x] = inputs[x];			//}Copies all the values from "inputs" into "value"
+	}										//}
+}
+void neuralNetwork::input(const long double input, int pos)
+{
+	if (pos >= 0 && pos < layerLen[0]) value[0][pos] = input;
+	else throw invArgExpt();
+}
+void neuralNetwork::output(long double* outputs)
+{
+	for (int x = 0; x < layerLen[netLen - 1]; x++) {	//}
+		outputs[x] = value[netLen - 1][x];				//}Copies all the values from "value" into "outputs"
+	}													//}
+}
+void neuralNetwork::output(long double output, int pos)
+{
+	if (pos >= 0 && pos < layerLen[netLen - 1]) value[netLen - 1][pos] = output;
+	else throw invArgExpt();
+}
+long double neuralNetwork::output(int pos)
+{
+	if (pos >= 0 && pos < layerLen[netLen - 1]) return value[netLen - 1][pos];
+	else throw invArgExpt();
+}
 void neuralNetwork::show() {
 	for (int x = 0; x < netLen; x++) {
 		if (x < (netLen - 1)) std::cout << "Bias L" << x << ':' << bias[x] << std::endl; //Displays the bias

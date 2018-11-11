@@ -104,7 +104,7 @@ public:
 
 };
 
-class invArgExpt : public std::exception {
+class invArgExpt : public std::exception {	//An invalud argument was used in a function
 public:
 	const char* what() const;
 };
@@ -130,6 +130,17 @@ public:
 	"...Len" variables will determine how many nodes there are in each layer*/
 	neuralNetwork(const int layerCount, const int* layersLen);
 	~neuralNetwork();
+	/*Copies all the values from "inputs" into the input layer*/
+	void input(const long double* inputs);
+	/*Copies the value from "input" into the node of "pos" position in the input layer*/
+	void input(const long double input, int pos);
+	/*Copies all the values from the output layer into "outputs"*/
+	void output(long double* outputs);
+	/*Copies the value from the node of "pos" position in the output layer into "output"*/
+	void output(long double output, int pos);
+	/*Returns the the value of the node of "pos" position in the output layer*/
+	long double output(int pos);
+	/*Displays the neural network's data on the command prompt*/
 	void show();
 };
 
