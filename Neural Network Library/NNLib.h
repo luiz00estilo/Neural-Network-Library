@@ -5,6 +5,8 @@
 
 long double ldRand(long double min, long double max);	//Returns a number int the range [min, max]
 
+
+
 	/*Nodes have information about each node it is connected ("nodes") that is connected to, the "weights" of these connection (range [-1, 1]),
 	how many nodes it is connected to ("outLen"), the value of which is was received from other nodes ("inputValue"), and its own "value" (range [-1, 1])*/
 class node {
@@ -122,6 +124,8 @@ private:
 	/*holds all the biases in the network
 	defined as "bias[layer]"*/
 	long double* bias;
+protected:
+	long double relu(long double n);
 public:
 	/*constructs a neural network with "layerCount" layers (2 minimum)
 	"...Len" variables determine how many nodes there are in each layer (1 minimum)*/
@@ -140,6 +144,7 @@ public:
 	void output(long double output, int pos);
 	/*Returns the the value of the node of "pos" position in the output layer*/
 	long double output(int pos);
+	void feedForward();
 	/*Displays the neural network's data on the command prompt*/
 	void show();
 };

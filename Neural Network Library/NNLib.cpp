@@ -295,6 +295,11 @@ const char* invArgExpt::what() const {
 	return "Invalid Argument";
 }
 
+long double neuralNetwork::relu(long double n) {
+	if (n >= 0) return n;
+	else return (n / 100);
+}
+
 neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)	//NO RENDOMIZATION
 {
 	if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw invArgExpt();	//}Validating the arguments
@@ -380,6 +385,17 @@ long double neuralNetwork::output(int pos)
 {
 	if (pos >= 0 && pos < layerLen[netLen - 1]) return value[netLen - 1][pos];
 	else throw invArgExpt();
+}
+void neuralNetwork::feedForward() {	//BATCH NORMALIZATION
+	for (int outL = 0; outL < (netLen - 1); outL++) {	//runs though all the output layers
+		for (int inN = 0; inN < layerLen[outL + 1]; inN++) {	//runs though all the nodes on "x" input layer
+			value[outL + 1][inN] = bias[outL];	//Adds the bias to the node
+			for (int outN = 0; outN < layerLen[outL]; outN++) {	//runs though all the nodes on its output layer
+				value[outL + 1][inN] += (value[outL][outN] * weight[outL][outN][inN]);	//adds the weightes sum to the node
+			}
+			value[outL + 1][inN] = relu(value[outL + 1][inN]);	//Parses the result though the activation function
+		}
+	}
 }
 void neuralNetwork::show() {
 	for (int x = 0; x < netLen; x++) {
