@@ -1,15 +1,17 @@
 #pragma once
 #ifndef NNLIB_H_
 #define NNLIB_H_
-
+#include <exception>
 
 long double ldRand(long double min, long double max);	//Returns a number int the range [min, max]
+
+
 
 	/*Nodes have information about each node it is connected ("nodes") that is connected to, the "weights" of these connection (range [-1, 1]),
 	how many nodes it is connected to ("outLen"), the value of which is was received from other nodes ("inputValue"), and its own "value" (range [-1, 1])*/
 class node {
 	friend class layer;
-	friend class neuralNetwork;
+	friend class oldNeuralNetwork;
 private:
 	long double inputValue;
 	long double value;
@@ -40,9 +42,8 @@ public:
 	long double getWeight(int n);
 };
 
-
 class layer {
-	friend class neuralNetwork;
+	friend class oldNeuralNetwork;
 private:
 	node** nodes;
 	int nodesLen;
@@ -68,9 +69,7 @@ public:
 
 };
 
-
-
-class neuralNetwork {
+class oldNeuralNetwork {
 private:
 	layer** layers/* = new layer**/;
 	int layersLen;
@@ -79,16 +78,16 @@ private:
 public:
 	/*-The "Len" variables determine how many nodes will be in that type of layer (all the hidden layers have the same amount of nodes)
 	-The Default Maximum Mutation Ratio can be changed in the header file*/
-	neuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double limitMaxMutationRate = 0.05);
+	oldNeuralNetwork(int inputLen, int hiddenLen, int outputLen, int numberOfHiddenLayers, long double limitMaxMutationRate = 0.05);
 	//Creates a copy of the input network
-	neuralNetwork(neuralNetwork& net);
-	~neuralNetwork();
+	oldNeuralNetwork(oldNeuralNetwork& net);
+	~oldNeuralNetwork();
 	//Will return a pointer to layer "l" on the network (from {input -> hidden -> output} order)
 	layer* operator[](int l);
-	void operator=(neuralNetwork& net);
+	void operator=(oldNeuralNetwork& net);
 	void invalidate();
 	//Returns a pointer to a new network, which is a mutation of the two networks involved
-	neuralNetwork* operator+(neuralNetwork &net);
+	oldNeuralNetwork* operator+(oldNeuralNetwork &net);
 	//Inputs the "inputs" into the nodes in the input layer
 	void input(long double* inputs);
 	void output(long double * outputs);
@@ -96,10 +95,10 @@ public:
 	void process();
 	/*Turns "net" into a mutated version of "this" network
 	-This is, usually, the faster version of the function*/
-	void getMutation(neuralNetwork& net);
+	void getMutation(oldNeuralNetwork& net);
 	/*Returns a mutated version of "this" network
 	-This is, usually, the slower version of the function*/
-	neuralNetwork getMutation();
+	oldNeuralNetwork getMutation();
 	//Will return a pointer to layer "l" on the network (from {input -> hidden -> output} order)
 	layer* getLayer(int l);
 	//Will show all Values and Weights
@@ -107,8 +106,48 @@ public:
 
 };
 
+class invArgExpt : public std::exception {	//An invalud argument was used in a function
+public:
+	const char* what() const;
+};
 
-
+class neuralNetwork {
+private:
+	int netLen;	/*holds the amount of layers in the network*/
+	int* layerLen; /*holds the amount of nodes in each layer*/
+	/*holds the values for all the nodes in the network
+	defined as "value[layer][node]"*/
+	long double** value;
+	/*holds all the weights in the network
+	defined as "weight[output layer][output node][input node]"*/
+	long double*** weight;
+	/*holds all the biases in the network
+	defined as "bias[layer]"*/
+	long double* bias;
+protected:
+	long double relu(long double n);
+public:
+	/*constructs a neural network with "layerCount" layers (2 minimum)
+	"...Len" variables determine how many nodes there are in each layer (1 minimum)*/
+	neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen);
+	/*constructs a neural network with "layerCount" layers
+	"...Len" variables will determine how many nodes there are in each layer*/
+	neuralNetwork(const int layerCount, const int* layersLen);
+	~neuralNetwork();
+	/*Copies all the values from "inputs" into the input layer*/
+	void input(const long double* inputs);
+	/*Copies the value from "input" into the node of "pos" position in the input layer*/
+	void input(const long double input, int pos);
+	/*Copies all the values from the output layer into "outputs"*/
+	void output(long double* outputs);
+	/*Copies the value from the node of "pos" position in the output layer into "output"*/
+	void output(long double output, int pos);
+	/*Returns the the value of the node of "pos" position in the output layer*/
+	long double output(int pos);
+	void feedForward();
+	/*Displays the neural network's data on the command prompt*/
+	void show();
+};
 
 
 
