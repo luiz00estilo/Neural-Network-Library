@@ -295,16 +295,34 @@ const char* invArgExpt::what() const {
 	return "Invalid Argument";
 }
 
-long double neuralNetwork::relu(long double n) {
+long double neuralNetwork::lrelu(long double n) {
 	if (n >= 0) return n;
 	else return (n / 100);
+}
+void neuralNetwork::batchNorm(int layer)
+{
+	long double mean = 0;
+	long double variance = 0;
+	for (int x = 0; x < layerLen[layer]; x++) mean += value[layer][x];	//}calculating the mean
+	mean /= layerLen[layer];											//}
+	for (int x = 0, temp; x < layerLen[layer]; x++) {	//}
+		temp = value[layer][x] - mean;					//}
+		variance += (temp * temp);						//}calculating the variance
+	}													//}
+	variance /= layerLen[layer];						//}
+	for (int x = 0; x < layerLen[layer]; x++) {
+		value[layer][x] = (value[layer][x] - mean) / sqrt(variance);	//normalizing
+		value[layer][x] = (value[layer][x] * gamma[layer - 1]) + beta[layer - 1];	//scaling and shifting
+	}
 }
 
 neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)	//NO RENDOMIZATION
 {
 	if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw invArgExpt();	//}Validating the arguments
 	netLen = layerCount;	//Sets the number of layers
-	bias = new long double[netLen - 1];	//Creates the biases for each layer
+	bias = new long double[netLen - 1];		//Creates the biases for each layer
+	gamma = new long double[netLen - 1];	//Creates the gamma for each layer
+	beta = new long double[netLen - 1];		//Creates the beta for each layer
 	layerLen = new int[netLen];										//Creates the layer lengths
 	layerLen[0] = inputLen;											//Sets the length of the input layer
 	for (int x = 1; x < (netLen - 1); x++) layerLen[x] = hiddenLen;	//Sets the length of the hidden layers
@@ -329,6 +347,8 @@ neuralNetwork::neuralNetwork(const int layerCount, const int* layersLen)
 	if (layerCount > 2) for (int x = 1; x < (layerCount - 1); x++) if (layersLen[x] < 1) throw invArgExpt();	//}
 	netLen = layerCount;	//Sets the number of layers
 	bias = new long double[netLen - 1];		//Creates the biases for each layer
+	gamma = new long double[netLen - 1];	//Creates the gamma for each layer
+	beta = new long double[netLen - 1];		//Creates the beta for each layer
 	layerLen = new int[netLen];				//Creates the list of layer lengths
 	value = new long double*[netLen];		//Creates the value layers
 	weight = new long double**[netLen - 1];	//Creates the weight layers
@@ -356,7 +376,9 @@ neuralNetwork::~neuralNetwork()
 	delete[] weight;													//}
 	for (int x = 0; x < netLen; x++) delete[] value[x];	//}Frees up "value"
 	delete[] value;										//}
-	delete[] bias;	//Frees up "bias"
+	delete[] bias;		//Frees up "bias"
+	delete[] gamma;		//Frees up "gamma"
+	delete[] beta;		//Frees up "beta"
 	delete[] layerLen;	//Frees up "layerLen"
 }
 void neuralNetwork::input(const long double* inputs)
@@ -386,7 +408,7 @@ long double neuralNetwork::output(int pos)
 	if (pos >= 0 && pos < layerLen[netLen - 1]) return value[netLen - 1][pos];
 	else throw invArgExpt();
 }
-void neuralNetwork::feedForward() {	//BATCH NORMALIZATION
+void neuralNetwork::feedForward() {
 	for (int outL = 0; outL < (netLen - 1); outL++) {	//runs though all the output layers
 		for (int inN = 0; inN < layerLen[outL + 1]; inN++) {	//runs though all the nodes on "x" input layer
 			value[outL + 1][inN] = bias[outL];	//Adds the bias to the node
@@ -394,6 +416,7 @@ void neuralNetwork::feedForward() {	//BATCH NORMALIZATION
 				value[outL + 1][inN] += (value[outL][outN] * weight[outL][outN][inN]);	//adds the weightes sum to the node
 			}
 			value[outL + 1][inN] = relu(value[outL + 1][inN]);	//Parses the result though the activation function
+			//batchNorm();
 		}
 	}
 }

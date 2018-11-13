@@ -124,8 +124,13 @@ private:
 	/*holds all the biases in the network
 	defined as "bias[layer]"*/
 	long double* bias;
+	long double* gamma;
+	long double* beta;
 protected:
-	long double relu(long double n);
+	/*returns result "n" after it's applied though a leaky ReLU*/
+	long double lrelu(long double n);
+	/*applies the batch normalization process one layer of the neural network (defined by "layer")*/
+	void batchNorm(int layer);
 public:
 	/*constructs a neural network with "layerCount" layers (2 minimum)
 	"...Len" variables determine how many nodes there are in each layer (1 minimum)*/
