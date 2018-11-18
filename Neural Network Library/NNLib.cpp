@@ -290,9 +290,11 @@ void oldNeuralNetwork::show() {
 	}
 }
 
-
+const char* invArgInExpt::what() const {
+	return "invalidArgumentInternal";
+}
 const char* invArgExpt::what() const {
-	return "Invalid Argument";
+	return "invalidArgument";
 }
 
 long double neuralNetwork::lrelu(long double n) {
@@ -301,22 +303,24 @@ long double neuralNetwork::lrelu(long double n) {
 }
 void neuralNetwork::batchNorm(int layer)
 {
+	if (layer < 1 || layer > (netLen - 1)) throw invArgInExpt();
+	long double temp;
 	long double mean = 0;
 	long double variance = 0;
 	for (int x = 0; x < layerLen[layer]; x++) mean += value[layer][x];	//}calculating the mean
 	mean /= layerLen[layer];											//}
-	for (int x = 0, temp; x < layerLen[layer]; x++) {	//}
-		temp = value[layer][x] - mean;					//}
-		variance += (temp * temp);						//}calculating the variance
-	}													//}
-	variance /= layerLen[layer];						//}
+	for (int x = 0; x < layerLen[layer]; x++) {	//}
+		temp = (value[layer][x] - mean);		//}
+		variance += (temp * temp);				//}calculating the variance
+	}											//}
+	variance /= layerLen[layer];				//}
 	for (int x = 0; x < layerLen[layer]; x++) {
 		value[layer][x] = (value[layer][x] - mean) / sqrt(variance);	//normalizing
 		value[layer][x] = (value[layer][x] * gamma[layer - 1]) + beta[layer - 1];	//scaling and shifting
 	}
 }
 
-neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)	//NO RENDOMIZATION
+neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int hiddenLen, const int outputLen)
 {
 	if (layerCount < 2 || inputLen < 1 || outputLen < 1 || (layerCount > 2 && hiddenLen < 1)) throw invArgExpt();	//}Validating the arguments
 	netLen = layerCount;	//Sets the number of layers
@@ -333,7 +337,9 @@ neuralNetwork::neuralNetwork(const int layerCount, const int inputLen, const int
 	std::default_random_engine eng(std::chrono::high_resolution_clock::now().time_since_epoch().count());	//}generating a number between (min, max)
 	weight = new long double**[netLen - 1];	//Creates the weight layers
 	for (int x = 0; x < (netLen - 1); x++) {
-		bias[x] = rnd(eng);	//Randomizes the biases' values
+		bias[x] = rnd(eng);		//Randomizes the biases' values
+		gamma[x] = rnd(eng);	//Randomizes the gammas' values
+		beta[x] = rnd(eng);		//Randomizes the betas' values
 		weight[x] = new long double*[layerLen[x]];	//Creates the hidden weight nodes
 		for (int y = 0; y < layerLen[x]; y++) {
 			weight[x][y] = new long double[layerLen[x + 1]];						//Creates the weights
@@ -359,7 +365,9 @@ neuralNetwork::neuralNetwork(const int layerCount, const int* layersLen)
 	std::uniform_real_distribution<long double> rnd(0, 1);													//}Creates the randomizer
 	std::default_random_engine eng(std::chrono::high_resolution_clock::now().time_since_epoch().count());	//}Generating a number between (min, max)
 	for (int x = 0; x < (netLen - 1); x++) {
-		bias[x] = rnd(eng);	//Randomizes the biases' values
+		bias[x] = rnd(eng);		//Randomizes the biases' values
+		gamma[x] = rnd(eng);	//Randomizes the gammas' values
+		beta[x] = rnd(eng);		//Randomizes the betas' values
 		weight[x] = new long double*[layersLen[x]];	//Creates the hidden weight nodes
 		for (int y = 0; y < layerLen[x]; y++) {
 			weight[x][y] = new long double[layerLen[x + 1]];						//Creates the weights
@@ -415,14 +423,17 @@ void neuralNetwork::feedForward() {
 			for (int outN = 0; outN < layerLen[outL]; outN++) {	//runs though all the nodes on its output layer
 				value[outL + 1][inN] += (value[outL][outN] * weight[outL][outN][inN]);	//adds the weightes sum to the node
 			}
-			value[outL + 1][inN] = relu(value[outL + 1][inN]);	//Parses the result though the activation function
-			//batchNorm();
+			value[outL + 1][inN] = lrelu(value[outL + 1][inN]);	//Parses the result though the activation function
 		}
+		if (outL < (netLen - 2)) batchNorm(outL + 1);	//Applies batch the hidden layers
 	}
 }
 void neuralNetwork::show() {
 	for (int x = 0; x < netLen; x++) {
-		if (x < (netLen - 1)) std::cout << "Bias L" << x << ':' << bias[x] << std::endl; //Displays the bias
+		if (x < (netLen - 1)) {
+			std::cout << "-Gamma & Beta L" << x << ':' << gamma[x] << " " << beta[x] << std::endl; //Displays the bias
+			std::cout << "Bias L" << x << ':' << bias[x] << std::endl; //Displays the bias
+		}
 		std::cout << "Values L" << x << " (" << layerLen[x] << "): ";
 		for (int y = 0; y < layerLen[x]; y++) std::cout << value[x][y] << ' ';	//Displays all the values of "x" layer
 		std::cout << '\n';

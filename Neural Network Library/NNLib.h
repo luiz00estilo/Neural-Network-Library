@@ -2,6 +2,7 @@
 #ifndef NNLIB_H_
 #define NNLIB_H_
 #include <exception>
+//#include <string>
 
 long double ldRand(long double min, long double max);	//Returns a number int the range [min, max]
 
@@ -106,12 +107,22 @@ public:
 
 };
 
-class invArgExpt : public std::exception {	//An invalud argument was used in a function
+class invArgInExpt : public std::exception {	//An invalid argument was used in a function inside the library (internal error)
 public:
+	/*initializar used to warn developer in which function it happened*/
+	const char* what() const;
+};
+class invArgExpt : public std::exception {	//An invalid argument was used in a function
+public:
+	/*initializar used to warn developer in which function it happened*/
 	const char* what() const;
 };
 
-class neuralNetwork {
+/*notes:
+	-GAMMA AND BETA MAY ONLY NEED [netLen - 2] VARIABLES, INSTEAD OF [netLen - 1]. TO BE REVISED
+*/
+
+class neuralNetwork {	
 private:
 	int netLen;	/*holds the amount of layers in the network*/
 	int* layerLen; /*holds the amount of nodes in each layer*/
